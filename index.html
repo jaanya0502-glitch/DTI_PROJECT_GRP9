@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voyager</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo">V<span>o</span>yager</div>
+    <div class="auth-sub">Your journey companion</div>
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Sign In</button>
+        <button class="auth-tab" id="tab-register" onclick="switchTab('register')">Register</button>
+      </div>
+      <div id="auth-err" class="auth-err"></div>
+      <div id="reg-name-wrap" class="auth-f" style="display:none">
+        <label>Full Name</label>
+        <input type="text" id="reg-name" placeholder="Alex Wanderer">
+      </div>
+      <div class="auth-f"><label>Email</label><input type="text" id="auth-email" placeholder="hello@voyager.com"></div>
+      <div class="auth-f"><label>Password</label><input type="password" id="auth-pw" placeholder="••••••••"></div>
+      <div class="rem-row">
+        <input type="checkbox" id="rem-me">
+        <label for="rem-me">Remember me</label>
+      </div>
+      <button class="auth-btn" onclick="authSubmit()">Continue →</button>
+    </div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div id="home-screen">
+  <nav class="home-nav">
+    <div class="logo">V<span>o</span>yager</div>
+    <div class="home-nav-right">
+      <div class="user-chip">
+        <div class="user-av" id="home-av"></div>
+        <span class="user-name" id="home-uname"></span>
+      </div>
+      <button class="dm-btn" onclick="toggleDark()" title="Toggle theme">🌙</button>
+      <button class="logout-btn" onclick="logout()">Sign Out</button>
+    </div>
+  </nav>
+  <div class="home-wrap">
+    <div class="home-hero">
+      <h1 id="home-greeting">Welcome back</h1>
+      <p>Where are you headed next? Plan trips, track packing, and keep your adventures organized.</p>
+    </div>
+    <div class="home-cards">
+      <div class="hc" onclick="openApp('cal')">
+        <div class="hc-icon">🗓</div>
+        <div class="hc-t">Calendar</div>
+        <div class="hc-s">View all trips at a glance</div>
+      </div>
+      <div class="hc" onclick="openApp('plan')">
+        <div class="hc-icon">✈️</div>
+        <div class="hc-t">Plan a Trip</div>
+        <div class="hc-s">Create a new adventure</div>
+      </div>
+      <div class="hc" onclick="openApp('trips')">
+        <div class="hc-icon">🗺</div>
+        <div class="hc-t">My Journeys</div>
+        <div class="hc-s">All your saved trips</div>
+      </div>
+      <div class="hc" onclick="toast('✦ More features coming soon')">
+        <div class="hc-icon">🌐</div>
+        <div class="hc-t">Explore</div>
+        <div class="hc-s">Discover new destinations</div>
+      </div>
+    </div>
+    <div class="home-stat-row">
+      <div class="hstat"><div class="hstat-n" id="stat-total">0</div><div class="hstat-l">Trips Planned</div></div>
+      <div class="hstat"><div class="hstat-n" id="stat-upcoming">0</div><div class="hstat-l">Upcoming</div></div>
+      <div class="hstat"><div class="hstat-n" id="stat-active">0</div><div class="hstat-l">Active Now</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app-screen">
+  <nav>
+    <div class="logo" onclick="goHome()" style="cursor:pointer">V<span>o</span>yager</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="tabs">
+        <button id="nb-cal" onclick="go('cal')">Calendar</button>
+        <button id="nb-plan" onclick="newTrip()">Plan</button>
+        <button id="nb-trips" onclick="go('trips')">Trips</button>
+      </div>
+      <button class="dm-btn" id="dm-toggle" onclick="toggleDark()" title="Toggle light/dark">🌙</button>
+    </div>
+  </nav>
+  <main>
+    <section id="v-cal" class="view">
+      <div class="wrap">
+        <div class="ph"><h1>Monthly Overview</h1><p>Your travels at a glance</p></div>
+        <div class="card">
+          <div class="cal-head">
+            <div class="cal-m" id="cal-lbl"></div>
+            <div class="cal-btns">
+              <button class="cal-btn" onclick="calNav(-1)">&#8592;</button>
+              <button class="cal-btn" onclick="calNav(1)">&#8594;</button>
+            </div>
+          </div>
+          <div class="cal-grid" id="cal-grid"></div>
+          <div class="leg">
+            <div class="leg-i"><div class="dot" style="background:var(--dsc)"></div>Departure</div>
+            <div class="leg-i"><div class="dot" style="background:var(--dmc)"></div>In Transit</div>
+            <div class="leg-i"><div class="dot" style="background:var(--dec)"></div>Return</div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="v-plan" class="view">
+      <div class="wrap">
+        <div class="ph"><h1 id="ph-title">New Adventure</h1><p id="ph-sub">Fill in the details below</p></div>
+        <div class="card">
+          <div class="f"><label>Trip Name</label><input type="text" id="t-name" placeholder="Swiss Alps, Tokyo Spring…"></div>
+          <div class="row">
+            <div class="f"><label>Departure</label><input type="date" id="t-start"></div>
+            <div class="f"><label>Return</label><input type="date" id="t-end"></div>
+          </div>
+          <div class="sl">Activities</div>
+          <div class="chips" id="chips"></div>
+          <div class="sl">Custom Items</div>
+          <div class="add-row">
+            <input type="text" id="ci" placeholder="Inhaler, Drone, Special Medication…">
+            <button class="btn-sm" onclick="addCustom()">+ Add</button>
+          </div>
+          <div class="sl">Packing List</div>
+          <div class="prog-wrap">
+            <div class="prog-header">
+              <span class="prog-label">Packed</span>
+              <span class="prog-count" id="prog-count">0 / 0 items</span>
+            </div>
+            <div class="prog-bar-bg"><div class="prog-bar-fill" id="prog-fill" style="width:0%"></div></div>
+          </div>
+          <div class="list" id="list"></div>
+          <div class="btn-row">
+            <button class="btn-save" onclick="save()">Save Journey</button>
+            <button class="btn-pdf" onclick="exportPDF()">⬇ Export PDF</button>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="v-trips" class="view">
+      <div class="wrap">
+        <div class="ph"><h1>Your Journeys <span class="badge" id="tc-badge">0</span></h1><p>All your adventures in one place</p></div>
+        <div id="trips-out"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
