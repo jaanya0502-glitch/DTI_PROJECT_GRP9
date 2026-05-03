@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Voyager</title>
+<title>Voyager — Home</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -305,27 +305,49 @@ body.light .trip-row-status.past{color:#7f1d1d}
 </head>
 <body>
 
-<div id="auth-screen">
-  <div class="auth-box">
-    <div class="auth-logo">V<span>o</span>yager</div>
-    <div class="auth-sub">Your journey companion</div>
-    <div class="auth-card">
-      <div class="auth-tabs">
-        <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Sign In</button>
-        <button class="auth-tab" id="tab-register" onclick="switchTab('register')">Register</button>
+<div id="home-screen" class="on">
+  <nav class="home-nav">
+    <div class="logo">V<span>o</span>yager</div>
+    <div class="home-nav-right">
+      <div class="user-chip">
+        <div class="user-av" id="home-av"></div>
+        <span class="user-name" id="home-uname"></span>
       </div>
-      <div id="auth-err" class="auth-err"></div>
-      <div id="reg-name-wrap" class="auth-f" style="display:none">
-        <label>Full Name</label>
-        <input type="text" id="reg-name" placeholder="Alex Wanderer">
+      <button class="dm-btn" onclick="toggleDark()" title="Toggle theme">🌙</button>
+      <button class="logout-btn" onclick="logout()">Sign Out</button>
+    </div>
+  </nav>
+  <div class="home-wrap">
+    <div class="home-hero">
+      <h1 id="home-greeting">Welcome back</h1>
+      <p>Where are you headed next? Plan trips, track packing, and keep your adventures organized.</p>
+    </div>
+    <div class="home-cards">
+      <div class="hc" onclick="window.location.href='calendar.html'">
+        <div class="hc-icon">🗓</div>
+        <div class="hc-t">Calendar</div>
+        <div class="hc-s">View all trips at a glance</div>
       </div>
-      <div class="auth-f"><label>Email</label><input type="text" id="auth-email" placeholder="hello@voyager.com"></div>
-      <div class="auth-f"><label>Password</label><input type="password" id="auth-pw" placeholder="••••••••"></div>
-      <div class="rem-row">
-        <input type="checkbox" id="rem-me" checked>
-        <label for="rem-me">Remember me</label>
+      <div class="hc" onclick="window.location.href='plan.html'">
+        <div class="hc-icon">✈️</div>
+        <div class="hc-t">Plan a Trip</div>
+        <div class="hc-s">Create a new adventure</div>
       </div>
-      <button class="auth-btn" onclick="authSubmit()">Continue →</button>
+      <div class="hc" onclick="window.location.href='trips.html'">
+        <div class="hc-icon">🗺</div>
+        <div class="hc-t">My Journeys</div>
+        <div class="hc-s">All your saved trips</div>
+      </div>
+      <div class="hc" onclick="toast('✦ More features coming soon')">
+        <div class="hc-icon">🌐</div>
+        <div class="hc-t">Explore</div>
+        <div class="hc-s">Discover new destinations</div>
+      </div>
+    </div>
+    <div class="home-stat-row">
+      <div class="hstat"><div class="hstat-n" id="stat-total">0</div><div class="hstat-l">Trips Planned</div></div>
+      <div class="hstat"><div class="hstat-n" id="stat-upcoming">0</div><div class="hstat-l">Upcoming</div></div>
+      <div class="hstat"><div class="hstat-n" id="stat-active">0</div><div class="hstat-l">Active Now</div></div>
     </div>
   </div>
 </div>
@@ -380,42 +402,21 @@ function toast(msg){
 <script>
 window.addEventListener('DOMContentLoaded',()=>{
   initTheme();
-  // Already logged in → skip straight to home
-  try{if(getCurrentUser()) window.location.href='home.html';}catch(e){}
-  document.getElementById('auth-pw').addEventListener('keydown',e=>{if(e.key==='Enter')authSubmit()});
-  document.getElementById('auth-email').addEventListener('keydown',e=>{if(e.key==='Enter')authSubmit()});
+  const user=requireAuth();
+  if(!user)return;
+
+  const initials=user.name.split(' ').map(x=>x[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('home-av').textContent=initials;
+  document.getElementById('home-uname').textContent=user.name;
+  document.getElementById('home-greeting').textContent=`Welcome back, ${user.name.split(' ')[0]}`;
+
+  const today=new Date().toISOString().split('T')[0];
+  const trips=getTrips();
+  const future=trips.filter(t=>t.e>=today);
+  document.getElementById('stat-total').textContent=future.length;
+  document.getElementById('stat-upcoming').textContent=future.filter(t=>t.s>today).length;
+  document.getElementById('stat-active').textContent=future.filter(t=>t.s<=today&&t.e>=today).length;
 });
-
-let authMode='login';
-function switchTab(mode){
-  authMode=mode;
-  document.getElementById('tab-login').classList.toggle('active',mode==='login');
-  document.getElementById('tab-register').classList.toggle('active',mode==='register');
-  document.getElementById('reg-name-wrap').style.display=mode==='register'?'block':'none';
-  document.getElementById('auth-err').textContent='';
-}
-
-function authSubmit(){
-  const email=document.getElementById('auth-email').value.trim().toLowerCase();
-  const pw=document.getElementById('auth-pw').value;
-  const err=document.getElementById('auth-err');
-  if(!email||!pw){err.textContent='Please fill in all fields';return}
-  const users=getUsers();
-  if(authMode==='register'){
-    const name=document.getElementById('reg-name').value.trim();
-    if(!name){err.textContent='Enter your name';return}
-    if(users[email]){err.textContent='Email already registered';return}
-    users[email]={name,pw};
-    setUsers(users);
-    localStorage.setItem('voy-session',JSON.stringify({email,name}));
-    window.location.href='home.html';
-  } else {
-    const u=users[email];
-    if(!u||u.pw!==pw){err.textContent='Invalid email or password';return}
-    localStorage.setItem('voy-session',JSON.stringify({email,name:u.name}));
-    window.location.href='home.html';
-  }
-}
 </script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Voyager</title>
+<title>Voyager Plan</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -300,63 +300,70 @@ body.light .trip-row-status.past{color:#7f1d1d}
   .btn-row{flex-direction:column}
   .home-nav-right{gap:6px}
   .user-name{display:none}
-} 
+}
 </style>
-</head>
-<body>
+</head><body>
 
-<div id="auth-screen">
-  <div class="auth-box">
-    <div class="auth-logo">V<span>o</span>yager</div>
-    <div class="auth-sub">Your journey companion</div>
-    <div class="auth-card">
-      <div class="auth-tabs">
-        <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Sign In</button>
-        <button class="auth-tab" id="tab-register" onclick="switchTab('register')">Register</button>
+<div id="app-screen" class="on">
+  <nav>
+    <div class="logo" onclick="window.location.href='home.html'" style="cursor:pointer">V<span>o</span>yager</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="tabs">
+        <button onclick="window.location.href='calendar.html'">Calendar</button>
+        <button class="active" onclick="window.location.href='plan.html'">Plan</button>
+        <button onclick="window.location.href='trips.html'">Trips</button>
       </div>
-      <div id="auth-err" class="auth-err"></div>
-      <div id="reg-name-wrap" class="auth-f" style="display:none">
-        <label>Full Name</label>
-        <input type="text" id="reg-name" placeholder="Alex Wanderer">
-      </div>
-      <div class="auth-f"><label>Email</label><input type="text" id="auth-email" placeholder="hello@voyager.com"></div>
-      <div class="auth-f"><label>Password</label><input type="password" id="auth-pw" placeholder="••••••••"></div>
-      <div class="rem-row">
-        <input type="checkbox" id="rem-me" checked>
-        <label for="rem-me">Remember me</label>
-      </div>
-      <button class="auth-btn" onclick="authSubmit()">Continue →</button>
+      <button class="dm-btn" onclick="toggleDark()" title="Toggle light/dark">&#x1F319;</button>
     </div>
-  </div>
+  </nav>
+  <main>
+    <section id="v-plan" class="view on">
+      <div class="wrap">
+        <div class="ph"><h1 id="ph-title">New Adventure</h1><p id="ph-sub">Fill in the details below</p></div>
+        <div class="card">
+          <div class="f"><label>Trip Name</label><input type="text" id="t-name" placeholder="Swiss Alps, Tokyo Spring&#x2026;"></div>
+          <div class="row">
+            <div class="f"><label>Departure</label><input type="date" id="t-start"></div>
+            <div class="f"><label>Return</label><input type="date" id="t-end"></div>
+          </div>
+          <div class="sl">Activities</div>
+          <div class="chips" id="chips"></div>
+          <div class="sl">Custom Items</div>
+          <div class="add-row">
+            <input type="text" id="ci" placeholder="Inhaler, Drone, Special Medication&#x2026;">
+            <button class="btn-sm" onclick="addCustom()">+ Add</button>
+          </div>
+          <div class="sl">Packing List</div>
+          <div class="prog-wrap">
+            <div class="prog-header">
+              <span class="prog-label">Packed</span>
+              <span class="prog-count" id="prog-count">0 / 0 items</span>
+            </div>
+            <div class="prog-bar-bg"><div class="prog-bar-fill" id="prog-fill" style="width:0%"></div></div>
+          </div>
+          <div class="list" id="list"></div>
+          <div class="btn-row">
+            <button class="btn-save" onclick="save()">Save Journey</button>
+            <button class="btn-pdf" onclick="exportPDF()">&#x2B07; Export PDF</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 </div>
-
 <div class="toast" id="toast"></div>
+
 <script>
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
-const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const pad=n=>String(n).padStart(2,'0');
-const fmt=s=>{if(!s)return'';const[y,m,d]=s.split('-');return`${+d} ${MONTHS[+m-1].slice(0,3)} ${y}`};
-
-// ── STORAGE ──
+const fmt=s=>{if(!s)return'';const[y,m,d]=s.split('-');return(+d)+' '+MONTHS[+m-1].slice(0,3)+' '+y};
 const getUsers=()=>{try{return JSON.parse(localStorage.getItem('voy-users')||'{}')}catch{return{}}};
 const setUsers=u=>localStorage.setItem('voy-users',JSON.stringify(u));
 const getCurrentUser=()=>{try{return JSON.parse(localStorage.getItem('voy-session')||'null')}catch{return null}};
-const getTripKey=()=>`voy-trips-${getCurrentUser()?.email||''}`;
+const getTripKey=()=>'voy-trips-'+(getCurrentUser()?.email||'');
 const getTrips=()=>{try{return JSON.parse(localStorage.getItem(getTripKey())||'[]')}catch{return[]}};
 const setTrips=t=>localStorage.setItem(getTripKey(),JSON.stringify(t));
-
-function logout(){
-  localStorage.removeItem('voy-session');
-  window.location.href='index.html';
-}
-
-function requireAuth(){
-  const user=getCurrentUser();
-  if(!user){window.location.href='index.html';return null;}
-  return user;
-}
-
-// ── THEME ──
+function requireAuth(){const u=getCurrentUser();if(!u){window.location.href='index.html';return null;}return u;}
 function initTheme(){
   const L=localStorage.getItem('voy-theme')==='light';
   if(L)document.body.classList.add('light');
@@ -366,55 +373,141 @@ function toggleDark(){
   const L=document.body.classList.toggle('light');
   document.querySelectorAll('.dm-btn').forEach(b=>b.textContent=L?'🌙':'☀️');
   localStorage.setItem('voy-theme',L?'light':'dark');
-  if(typeof buildCal==='function'&&document.getElementById('v-cal')?.classList.contains('on'))buildCal();
 }
-
-// ── TOAST ──
 function toast(msg){
   const e=document.getElementById('toast');if(!e)return;
   e.textContent=msg;e.classList.add('show');
   clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),2600);
 }
-
 </script>
 <script>
+const ACT=[
+  {k:'Beach',l:'Beach',i:'🏖️'},{k:'Hiking',l:'Hiking',i:'⛰️'},{k:'City',l:'City',i:'🏙️'},
+  {k:'Camping',l:'Camping',i:'⛺'},{k:'Formal',l:'Formal',i:'👔'},{k:'Photo',l:'Photography',i:'📷'},
+  {k:'Winter',l:'Winter Sports',i:'❄️'},{k:'Gym',l:'Fitness',i:'💪'},{k:'Work',l:'Work / Remote',i:'💼'},
+  {k:'Water',l:'Water Sports',i:'🚣'},{k:'Cycling',l:'Cycling',i:'🚲'},{k:'Tropical',l:'Tropical',i:'🌴'},
+];
+const ESS=['Passport / ID','Wallet & Cash','Phone & Charger','Toiletries Bag','Underwear & Socks','Toothbrush & Paste','Deodorant','First Aid Kit'];
+const PRE={
+  Beach:['Swimsuit','Sunscreen SPF 50+','Beach Towel','Flip Flops','Sunglasses','Dry Bag','Wide-brimmed Hat'],
+  Hiking:['Hiking Boots','Water Bladder','Daypack','Bug Spray','Energy Bars','Trekking Poles'],
+  City:['Comfortable Walking Shoes','Power Bank','Small Daypack','Rain Jacket','Anti-theft Bag'],
+  Camping:['Sleeping Bag','Tent & Stakes','Headlamp','Lighter','Portable Stove','Camping Chair'],
+  Formal:['Dress Shirt / Blouse','Suit / Evening Dress','Dress Shoes','Tie / Cufflinks','Lint Roller'],
+  Photo:['Camera Body','Extra Lenses','SD Cards','Tripod','Lens Cleaning Kit','Spare Batteries'],
+  Winter:['Thermal Layers','Ski Jacket & Pants','Goggles','Insulated Gloves','Beanie','Neck Warmer'],
+  Gym:['Workout Clothes','Training Shoes','Protein Shaker','Sweat Towel','Earbuds'],
+  Work:['Laptop & Charger','Portable Mouse','Noise-cancelling Headphones','Notebook','Universal Adapter'],
+  Water:['Wetsuit / Rash Guard','Water Shoes','Goggles / Snorkel','Waterproof Watch','Life Vest'],
+  Cycling:['Helmet','Cycling Shorts','Bike Pump','Multi-tool','Cycling Gloves','Reflective Gear'],
+  Tropical:['Rain Poncho','Mosquito Net','Quick-dry Clothes','Water Purification Tablets','Binoculars'],
+};
+let sel=[],custom=[],editId=null,removed=[],checked=[];
+const esc=s=>s.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+
 window.addEventListener('DOMContentLoaded',()=>{
-  initTheme();
-  // Already logged in → skip straight to home
-  try{if(getCurrentUser()) window.location.href='home.html';}catch(e){}
-  document.getElementById('auth-pw').addEventListener('keydown',e=>{if(e.key==='Enter')authSubmit()});
-  document.getElementById('auth-email').addEventListener('keydown',e=>{if(e.key==='Enter')authSubmit()});
+  initTheme(); requireAuth();
+  const editRaw=localStorage.getItem('voy-edit');
+  if(editRaw){
+    localStorage.removeItem('voy-edit');
+    const t=JSON.parse(editRaw);
+    editId=t.id;
+    document.getElementById('t-name').value=t.n;
+    document.getElementById('t-start').value=t.s;
+    document.getElementById('t-end').value=t.e;
+    sel=[...(t.a||[])]; custom=[...(t.c||[])]; removed=[...(t.rm||[])]; checked=[...(t.ck||[])];
+    const today=new Date().toISOString().split('T')[0];
+    document.getElementById('ph-title').textContent='Edit Journey';
+    document.getElementById('ph-sub').textContent=(t.s<=today)?'Trip in progress — update your packing list':'Update your trip details';
+  }
+  buildChips(); buildList();
+  document.getElementById('ci').addEventListener('keydown',e=>{if(e.key==='Enter')addCustom();});
 });
 
-let authMode='login';
-function switchTab(mode){
-  authMode=mode;
-  document.getElementById('tab-login').classList.toggle('active',mode==='login');
-  document.getElementById('tab-register').classList.toggle('active',mode==='register');
-  document.getElementById('reg-name-wrap').style.display=mode==='register'?'block':'none';
-  document.getElementById('auth-err').textContent='';
+function buildChips(){
+  document.getElementById('chips').innerHTML=ACT.map(a=>'<div class="chip" id="c-'+a.k+'" onclick="tog(\''+a.k+'\')">'+a.i+' '+a.l+'</div>').join('');
+  syncChips();
 }
-
-function authSubmit(){
-  const email=document.getElementById('auth-email').value.trim().toLowerCase();
-  const pw=document.getElementById('auth-pw').value;
-  const err=document.getElementById('auth-err');
-  if(!email||!pw){err.textContent='Please fill in all fields';return}
-  const users=getUsers();
-  if(authMode==='register'){
-    const name=document.getElementById('reg-name').value.trim();
-    if(!name){err.textContent='Enter your name';return}
-    if(users[email]){err.textContent='Email already registered';return}
-    users[email]={name,pw};
-    setUsers(users);
-    localStorage.setItem('voy-session',JSON.stringify({email,name}));
-    window.location.href='home.html';
-  } else {
-    const u=users[email];
-    if(!u||u.pw!==pw){err.textContent='Invalid email or password';return}
-    localStorage.setItem('voy-session',JSON.stringify({email,name:u.name}));
-    window.location.href='home.html';
-  }
+function tog(k){
+  const wasOn=sel.includes(k);
+  wasOn?sel=sel.filter(x=>x!==k):sel.push(k);
+  syncChips(); buildList();
+  toast((wasOn?'✦ ':'✦ ')+(ACT.find(a=>a.k===k)?.l||k)+' items '+(wasOn?'removed':'added'));
+}
+function syncChips(){
+  ACT.forEach(a=>{const e=document.getElementById('c-'+a.k);if(e)e.classList.toggle('on',sel.includes(a.k));});
+}
+function addCustom(){
+  const inp=document.getElementById('ci'),v=inp.value.trim();
+  if(!v)return;
+  if(custom.includes(v)||[...ESS,...sel.flatMap(k=>PRE[k]||[])].includes(v))return toast('⚠ Already in list');
+  custom.push(v); buildList(); toast('✦ "'+v+'" added'); inp.value=''; inp.focus();
+}
+function removeItem(name){
+  const li=[...document.querySelectorAll('#list .li')].find(l=>l.querySelector('span')?.textContent===name);
+  const doRemove=()=>{removed.push(name);checked=checked.filter(x=>x!==name);buildList();toast('✦ "'+name+'" removed');};
+  if(li){li.classList.add('removing');setTimeout(doRemove,320);}else doRemove();
+}
+function getCurrentItems(){
+  return[...new Set([...ESS,...sel.flatMap(k=>PRE[k]||[]),...custom])].filter(x=>!removed.includes(x));
+}
+function updateProgress(){
+  const items=getCurrentItems(),total=items.length;
+  const done=checked.filter(x=>items.includes(x)).length;
+  document.getElementById('prog-count').textContent=done+' / '+total+' items';
+  document.getElementById('prog-fill').style.width=(total?Math.round(done/total*100):0)+'%';
+}
+function buildList(){
+  const items=getCurrentItems();const el=document.getElementById('list');
+  if(!items.length){el.innerHTML='<div class="empty">Select activities or add custom items above</div>';updateProgress();return;}
+  el.innerHTML=items.map(x=>'<label class="li"><input type="checkbox" '+(checked.includes(x)?'checked':'')+' onchange="toggleCheck(\''+esc(x)+'\',this.checked)"><span>'+x+'</span><button class="li-remove" onclick="removeItem(\''+esc(x)+'\');event.preventDefault()">✕</button></label>').join('');
+  updateProgress();
+}
+function toggleCheck(name,val){
+  if(val){if(!checked.includes(name))checked.push(name);toast('✓ "'+name+'" packed');}
+  else{checked=checked.filter(x=>x!==name);toast('✦ "'+name+'" unpacked');}
+  updateProgress();
+}
+function save(){
+  const n=document.getElementById('t-name').value.trim();
+  const s=document.getElementById('t-start').value;
+  const e=document.getElementById('t-end').value;
+  if(!n||!s||!e)return toast('⚠ Please fill in all fields');
+  const today=new Date().toISOString().split('T')[0];
+  const sT=new Date(s).getTime(),eT=new Date(e).getTime(),todayT=new Date(today).getTime();
+  if(eT<sT)return toast('⚠ Return must be after departure');
+  if(!editId&&sT<todayT)return toast('⚠ Departure date is in the past');
+  const trips=getTrips();
+  const ov=trips.find(t=>t.id!==editId&&sT<=new Date(t.e).getTime()&&eT>=new Date(t.s).getTime());
+  if(ov)return toast('⚠ Dates overlap with "'+ov.n+'"');
+  const trip={id:editId||Date.now(),n,s,e,a:[...sel],c:[...custom],rm:[...removed],ck:[...checked]};
+  setTrips(editId?trips.map(t=>t.id===editId?trip:t):[...trips,trip]);
+  localStorage.removeItem('voy-edit');
+  toast(editId?'✓ Journey updated':'✓ Journey saved');
+  setTimeout(()=>{window.location.href='trips.html';},800);
+}
+function exportPDF(){
+  const name=document.getElementById('t-name').value.trim()||'My Trip';
+  const start=document.getElementById('t-start').value,end=document.getElementById('t-end').value;
+  const items=getCurrentItems(),total=items.length;
+  const done=checked.filter(x=>items.includes(x)).length;
+  const pct=total?Math.round(done/total*100):0;
+  const win=window.open('','_blank');
+  if(!win)return toast('⚠ Allow popups to export PDF');
+  const pdfCSS='*{box-sizing:border-box;margin:0;padding:0}body{font-family:Helvetica,sans-serif;background:#fff;color:#111;padding:40px;max-width:680px;margin:0 auto;-webkit-print-color-adjust:exact;print-color-adjust:exact}h1{font-family:Georgia,serif;font-size:32px;font-weight:400;color:#c9a84c;margin-bottom:4px}.sub{font-size:13px;color:#6b7280;margin-bottom:28px}.pr{display:flex;justify-content:space-between;margin-bottom:6px}.pl{font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:#6b7280}.pc{font-size:13px;color:#c9a84c;font-weight:500}.pb{height:6px;background:#f0f0f0;border-radius:10px;margin-bottom:24px;overflow:hidden}.pf{height:100%;background:linear-gradient(90deg,#c9a84c,#e4c97e)}.item{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid #f3f4f6}.item:last-child{border:none}.box{width:16px;height:16px;border:2px solid #c9a84c;border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center}.box.chk{background:#c9a84c}.ck{color:#fff;font-size:11px;font-weight:700}.nm{font-size:13px}.done{color:#9ca3af;text-decoration:line-through}.foot{margin-top:24px;font-size:11px;color:#9ca3af;text-align:right}';
+  const rows=items.map(function(x){var c=checked.includes(x);return '<div class="item"><div class="box'+(c?' chk':'')+'">'+( c?'<span class="ck">&#x2713;</span>':'')+'</div><span class="nm'+(c?' done':'')+'">'+x+'</span></div>';}).join('');
+  var doc='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>'+name+' Packing List</title>';
+  doc+='<style>'+pdfCSS+'<\/style><\/head><body>';
+  doc+='<h1>'+name+'<\/h1>';
+  doc+='<div class="sub">'+(fmt(start)||'-')+' to '+(fmt(end)||'-')+'<\/div>';
+  doc+='<div class="pr"><span class="pl">Packed<\/span><span class="pc">'+done+' / '+total+' ('+pct+'%)<\/span><\/div>';
+  doc+='<div class="pb"><div class="pf" style="width:'+pct+'%"><\/div><\/div>';
+  doc+=rows;
+  doc+='<div class="foot">Exported from Voyager<\/div>';
+  doc+='<scr'+'ipt>window.onload=function(){window.print()};<\/scr'+'ipt>';
+  doc+='<\/body><\/html>';
+  win.document.write(doc);
+  win.document.close();
 }
 </script>
 </body>
