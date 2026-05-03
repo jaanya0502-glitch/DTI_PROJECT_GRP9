@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Voyager</title>
+<title>Voyager — Calendar</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -300,34 +300,56 @@ body.light .trip-row-status.past{color:#7f1d1d}
   .btn-row{flex-direction:column}
   .home-nav-right{gap:6px}
   .user-name{display:none}
-} 
+}
 </style>
 </head>
 <body>
 
-<div id="auth-screen">
-  <div class="auth-box">
-    <div class="auth-logo">V<span>o</span>yager</div>
-    <div class="auth-sub">Your journey companion</div>
-    <div class="auth-card">
-      <div class="auth-tabs">
-        <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Sign In</button>
-        <button class="auth-tab" id="tab-register" onclick="switchTab('register')">Register</button>
+<div id="app-screen" class="on">
+  <nav>
+    <div class="logo" onclick="window.location.href='home.html'" style="cursor:pointer">V<span>o</span>yager</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="tabs">
+        <button class="active" onclick="window.location.href='calendar.html'">Calendar</button>
+        <button onclick="window.location.href='plan.html'">Plan</button>
+        <button onclick="window.location.href='trips.html'">Trips</button>
       </div>
-      <div id="auth-err" class="auth-err"></div>
-      <div id="reg-name-wrap" class="auth-f" style="display:none">
-        <label>Full Name</label>
-        <input type="text" id="reg-name" placeholder="Alex Wanderer">
-      </div>
-      <div class="auth-f"><label>Email</label><input type="text" id="auth-email" placeholder="hello@voyager.com"></div>
-      <div class="auth-f"><label>Password</label><input type="password" id="auth-pw" placeholder="••••••••"></div>
-      <div class="rem-row">
-        <input type="checkbox" id="rem-me" checked>
-        <label for="rem-me">Remember me</label>
-      </div>
-      <button class="auth-btn" onclick="authSubmit()">Continue →</button>
+      <button class="dm-btn" onclick="toggleDark()" title="Toggle light/dark">🌙</button>
     </div>
-  </div>
+  </nav>
+  <main>
+    <section id="v-cal" class="view on">
+      <div class="wrap">
+        <div class="ph"><h1>Monthly Overview</h1><p>Your travels at a glance</p></div>
+        <div class="card">
+          <div class="cal-head">
+            <div class="cal-m" id="cal-lbl"></div>
+            <div class="cal-btns">
+              <button class="cal-btn" onclick="calNav(-1)">&#8592;</button>
+              <button class="cal-btn today-btn" onclick="goToday()">Today</button>
+              <button class="cal-btn" onclick="calNav(1)">&#8594;</button>
+            </div>
+          </div>
+          <div class="cal-grid" id="cal-grid"></div>
+          <div class="leg">
+            <div class="leg-i"><div class="dot" style="background:var(--dsc)"></div>Departure</div>
+            <div class="leg-i"><div class="dot" style="background:var(--dmc)"></div>In Transit</div>
+            <div class="leg-i"><div class="dot" style="background:var(--dec)"></div>Return</div>
+          </div>
+        </div>
+
+        <!-- Trip list for this month -->
+        <div class="trip-list-section" id="trip-list-section"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- Hover tooltip -->
+<div class="cal-tip" id="cal-tip">
+  <div class="cal-tip-name" id="tip-name"></div>
+  <div class="cal-tip-dates" id="tip-dates"></div>
+  <div class="cal-tip-badge" id="tip-badge"></div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -378,43 +400,143 @@ function toast(msg){
 
 </script>
 <script>
+let cy, cm;
+const tip=document.getElementById('cal-tip');
+
 window.addEventListener('DOMContentLoaded',()=>{
   initTheme();
-  // Already logged in → skip straight to home
-  try{if(getCurrentUser()) window.location.href='home.html';}catch(e){}
-  document.getElementById('auth-pw').addEventListener('keydown',e=>{if(e.key==='Enter')authSubmit()});
-  document.getElementById('auth-email').addEventListener('keydown',e=>{if(e.key==='Enter')authSubmit()});
+  requireAuth();
+  const now=new Date(); cy=now.getFullYear(); cm=now.getMonth();
+  buildCal();
 });
 
-let authMode='login';
-function switchTab(mode){
-  authMode=mode;
-  document.getElementById('tab-login').classList.toggle('active',mode==='login');
-  document.getElementById('tab-register').classList.toggle('active',mode==='register');
-  document.getElementById('reg-name-wrap').style.display=mode==='register'?'block':'none';
-  document.getElementById('auth-err').textContent='';
+function goToday(){
+  const now=new Date(); cy=now.getFullYear(); cm=now.getMonth();
+  buildCal();
 }
 
-function authSubmit(){
-  const email=document.getElementById('auth-email').value.trim().toLowerCase();
-  const pw=document.getElementById('auth-pw').value;
-  const err=document.getElementById('auth-err');
-  if(!email||!pw){err.textContent='Please fill in all fields';return}
-  const users=getUsers();
-  if(authMode==='register'){
-    const name=document.getElementById('reg-name').value.trim();
-    if(!name){err.textContent='Enter your name';return}
-    if(users[email]){err.textContent='Email already registered';return}
-    users[email]={name,pw};
-    setUsers(users);
-    localStorage.setItem('voy-session',JSON.stringify({email,name}));
-    window.location.href='home.html';
-  } else {
-    const u=users[email];
-    if(!u||u.pw!==pw){err.textContent='Invalid email or password';return}
-    localStorage.setItem('voy-session',JSON.stringify({email,name:u.name}));
-    window.location.href='home.html';
+function calNav(d){
+  cm+=d;
+  if(cm<0){cm=11;cy--}
+  if(cm>11){cm=0;cy++}
+  buildCal();
+}
+
+function showTip(el, trip, dayType){
+  document.getElementById('tip-name').textContent=trip.n;
+  document.getElementById('tip-dates').textContent=`${fmt(trip.s)} → ${fmt(trip.e)}`;
+  const badge=document.getElementById('tip-badge');
+  const labels={ds:'✈ Departure',dm:'🌍 In Transit',de:'🏠 Return'};
+  const classes={ds:'dep',dm:'mid',de:'ret'};
+  badge.textContent=labels[dayType]||'';
+  badge.className='cal-tip-badge '+(classes[dayType]||'');
+  tip.classList.add('show');
+
+  const rect=el.getBoundingClientRect();
+  let top=rect.bottom+8;
+  let left=rect.left;
+  // keep within viewport
+  if(left+260>window.innerWidth) left=window.innerWidth-270;
+  if(top+120>window.innerHeight) top=rect.top-130;
+  tip.style.top=top+'px';
+  tip.style.left=left+'px';
+}
+
+function hideTip(){ tip.classList.remove('show'); }
+
+function buildCal(){
+  const trips=getTrips();
+  document.getElementById('cal-lbl').textContent=`${MONTHS[cm]} ${cy}`;
+  const g=document.getElementById('cal-grid');
+  g.innerHTML=DOW.map(d=>`<div class="dow">${d}</div>`).join('');
+
+  const today=new Date();
+  const ts=`${today.getFullYear()}-${pad(today.getMonth()+1)}-${pad(today.getDate())}`;
+  const first=new Date(cy,cm,1).getDay();
+  const dim=new Date(cy,cm+1,0).getDate();
+  const prev=new Date(cy,cm,0).getDate();
+
+  // Prev month fillers
+  for(let i=first-1;i>=0;i--){
+    const d=document.createElement('div');
+    d.className='day other';
+    d.innerHTML=`<span class="day-num">${prev-i}</span>`;
+    g.appendChild(d);
   }
+
+  // Current month days
+  for(let n=1;n<=dim;n++){
+    const ds=`${cy}-${pad(cm+1)}-${pad(n)}`;
+    const d=document.createElement('div');
+    let cls='day';
+    if(ds===ts) cls+=' today';
+
+    const trip=trips.find(t=>ds===t.s||ds===t.e||(ds>t.s&&ds<t.e));
+    let dayType=null;
+    let shortName='';
+
+    if(trip){
+      if(ds===trip.s){ dayType='ds'; shortName='↑ '+trip.n; }
+      else if(ds===trip.e){ dayType='de'; shortName='↓ '+trip.n; }
+      else { dayType='dm'; shortName=trip.n; }
+      cls+=' '+dayType+' has-trip';
+    }
+
+    d.className=cls;
+    d.innerHTML=`<span class="day-num">${n}</span>${trip?`<span class="day-label">${shortName}</span>`:''}`;
+
+    if(trip){
+      const t=trip, dt=dayType;
+      d.addEventListener('mouseenter',e=>showTip(d,t,dt));
+      d.addEventListener('mouseleave',hideTip);
+      d.addEventListener('click',()=>{
+        localStorage.setItem('voy-edit',JSON.stringify(t));
+        window.location.href='plan.html';
+      });
+    }
+
+    g.appendChild(d);
+  }
+
+  // Next month fillers
+  const rem=(first+dim)%7;
+  for(let i=1;i<=(rem?7-rem:0);i++){
+    const d=document.createElement('div');
+    d.className='day other';
+    d.innerHTML=`<span class="day-num">${i}</span>`;
+    g.appendChild(d);
+  }
+
+  buildTripList(trips);
+}
+
+function buildTripList(trips){
+  const section=document.getElementById('trip-list-section');
+  // Filter trips that overlap with this month
+  const monthStart=`${cy}-${pad(cm+1)}-01`;
+  const monthEnd=`${cy}-${pad(cm+1)}-${pad(new Date(cy,cm+1,0).getDate())}`;
+  const visible=trips.filter(t=>t.s<=monthEnd && t.e>=monthStart);
+
+  if(!visible.length){ section.innerHTML=''; return; }
+
+  const today=new Date().toISOString().split('T')[0];
+
+  section.innerHTML=`
+    <div class="sl" style="margin-bottom:12px">Trips This Month</div>
+    ${visible.map(t=>{
+      let status, statusLabel, icon;
+      if(t.s>today){ status='upcoming'; statusLabel='Upcoming'; icon='✈️'; }
+      else if(t.e>=today){ status='active'; statusLabel='In Progress'; icon='🌍'; }
+      else { status='past'; statusLabel='Completed'; icon='✓'; }
+      return `<div class="trip-row ${status}" onclick="localStorage.setItem('voy-edit',JSON.stringify(${JSON.stringify(t)}));window.location.href='plan.html'">
+        <div class="trip-row-icon">${icon}</div>
+        <div class="trip-row-info">
+          <div class="trip-row-name">${t.n}</div>
+          <div class="trip-row-dates">${fmt(t.s)} → ${fmt(t.e)}</div>
+        </div>
+        <div class="trip-row-status ${status}">${statusLabel}</div>
+      </div>`;
+    }).join('')}`;
 }
 </script>
 </body>

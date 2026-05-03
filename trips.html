@@ -1,3 +1,11 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voyager — My Journeys</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#07090f;--card:#111827;--b:rgba(255,255,255,.07);--bh:rgba(255,255,255,.15);
@@ -15,19 +23,40 @@ body.light{
   --de:rgba(239,68,68,.3);--dec:#7f1d1d;
   --dm:rgba(79,142,247,.3);--dmc:#1e3a8a;
 }
-  body.light .day.ds{background:var(--ds);color:var(--dsc);font-weight:500}
-  body.light .day.de{background:var(--de);color:var(--dec);font-weight:500}
-  body.light .day.dm{background:var(--dm);color:var(--dmc)}
-  
+body.light .day.ds{background:var(--ds);color:var(--dsc);font-weight:500}
+body.light .day.de{background:var(--de);color:var(--dec);font-weight:500}
+body.light .day.dm{background:var(--dm);color:var(--dmc)}
+ 
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden;transition:background .3s,color .3s}
 body::before{content:'';position:fixed;inset:0;pointer-events:none;
-  background-image:radial-gradient(1px 1px at 15% 20%,rgba(255,255,255,.4) 0%,transparent 100%),
-  radial-gradient(1px 1px at 72% 14%,rgba(255,255,255,.3) 0%,transparent 100%),
-  radial-gradient(1.5px 1.5px at 38% 60%,rgba(255,255,255,.25) 0%,transparent 100%),
-  radial-gradient(1px 1px at 85% 45%,rgba(255,255,255,.35) 0%,transparent 100%),
-  radial-gradient(1px 1px at 8% 75%,rgba(255,255,255,.3) 0%,transparent 100%)}
-body.light::before{background-image:radial-gradient(1px 1px at 15% 20%,rgba(0,0,0,.07) 0%,transparent 100%),radial-gradient(1px 1px at 72% 14%,rgba(0,0,0,.05) 0%,transparent 100%),radial-gradient(1.5px 1.5px at 38% 60%,rgba(0,0,0,.04) 0%,transparent 100%)}
-
+  background-image:
+    radial-gradient(1px 1px at 15% 20%,rgba(255,255,255,.4) 0%,transparent 100%),
+    radial-gradient(1px 1px at 72% 14%,rgba(255,255,255,.3) 0%,transparent 100%),
+    radial-gradient(1.5px 1.5px at 38% 60%,rgba(255,255,255,.25) 0%,transparent 100%),
+    radial-gradient(1px 1px at 85% 45%,rgba(255,255,255,.35) 0%,transparent 100%),
+    radial-gradient(1px 1px at 8% 75%,rgba(255,255,255,.3) 0%,transparent 100%)}
+body.light::before{background-image:
+  radial-gradient(1px 1px at 15% 20%,rgba(0,0,0,.07) 0%,transparent 100%),
+  radial-gradient(1px 1px at 72% 14%,rgba(0,0,0,.05) 0%,transparent 100%),
+  radial-gradient(1.5px 1.5px at 38% 60%,rgba(0,0,0,.04) 0%,transparent 100%)}
+ 
+/* ── NAV (shared between home-nav and app nav) ── */
+nav,.home-nav{position:fixed;top:0;left:0;right:0;height:var(--nh);display:flex;align-items:center;justify-content:space-between;padding:0 32px;background:rgba(7,9,15,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--b);z-index:100;transition:background .3s}
+body.light nav,body.light .home-nav{background:rgba(245,243,238,.93)}
+.logo{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;letter-spacing:6px;text-transform:uppercase;color:var(--gl);cursor:pointer}
+body.light .logo{color:#92671a}
+.logo span{color:var(--gold)}
+ 
+/* ── TABS & DARK MODE BTN ── */
+.tabs{display:flex;gap:4px;background:rgba(255,255,255,.04);border:1px solid var(--b);border-radius:30px;padding:4px}
+body.light .tabs{background:rgba(0,0,0,.05)}
+.tabs button{background:transparent;border:none;color:var(--mu);padding:7px 20px;border-radius:24px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;transition:.2s}
+.tabs button:hover{color:var(--tx)}
+.tabs button.active{background:var(--gold);color:#07090f}
+.dm-btn{width:34px;height:34px;background:rgba(255,255,255,.06);border:1px solid var(--b);border-radius:50%;cursor:pointer;color:var(--sf);font-size:16px;display:flex;align-items:center;justify-content:center;transition:.2s;flex-shrink:0}
+body.light .dm-btn{background:rgba(0,0,0,.05)}
+.dm-btn:hover{background:var(--gd);border-color:rgba(201,168,76,.4);color:var(--gl)}
+ 
 /* ── AUTH ── */
 #auth-screen{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;background:var(--bg)}
 #auth-screen.hidden{display:none}
@@ -48,19 +77,14 @@ body.light .auth-f input{background:rgba(0,0,0,.04)}
 .auth-f input:focus{border-color:rgba(201,168,76,.5);background:rgba(201,168,76,.04)}
 .rem-row{display:flex;align-items:center;gap:8px;margin-bottom:20px}
 .rem-row input[type=checkbox]{width:15px;height:15px;accent-color:var(--gold);cursor:pointer}
-.rem-row label{font-size:13px;color:var(--mu);cursor:pointer;letter-spacing:0;text-transform:none;font-weight:400;margin:0}
+.rem-row label{font-size:13px;color:var(--mu);cursor:pointer;font-weight:400;margin:0}
 .auth-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--gold),#a8772a);border:none;border-radius:var(--rs);color:#07090f;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:.2s}
 .auth-btn:hover{opacity:.9}
 .auth-err{font-size:12px;color:#f87171;margin-bottom:12px;text-align:center;min-height:16px}
-
+ 
 /* ── HOME ── */
 #home-screen{display:none}
 #home-screen.on{display:block}
-.home-nav{position:fixed;top:0;left:0;right:0;height:var(--nh);display:flex;align-items:center;justify-content:space-between;padding:0 32px;background:rgba(7,9,15,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--b);z-index:100;transition:background .3s}
-body.light .home-nav{background:rgba(245,243,238,.93)}
-.logo{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;letter-spacing:6px;text-transform:uppercase;color:var(--gl)}
-body.light .logo{color:#92671a}
-.logo span{color:var(--gold)}
 .home-nav-right{display:flex;align-items:center;gap:10px}
 .user-chip{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.05);border:1px solid var(--b);border-radius:30px;padding:5px 14px 5px 5px}
 body.light .user-chip{background:rgba(0,0,0,.05)}
@@ -68,7 +92,7 @@ body.light .user-chip{background:rgba(0,0,0,.05)}
 .user-name{font-size:13px;color:var(--sf)}
 .logout-btn{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:var(--rs);color:#f87171;font-family:'DM Sans',sans-serif;font-size:12px;padding:6px 12px;cursor:pointer;transition:.2s}
 .logout-btn:hover{background:rgba(239,68,68,.15)}
-.home-wrap{max-width:700px;margin:0 auto;padding:calc(var(--nh) + 40px) 24px 80px}
+.home-wrap,.wrap{max-width:700px;margin:0 auto;padding:calc(var(--nh) + 40px) 24px 80px}
 .home-hero{margin-bottom:48px}
 .home-hero h1{font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:300;color:var(--gl);letter-spacing:1px;margin-bottom:8px}
 body.light .home-hero h1{color:#92671a}
@@ -76,7 +100,8 @@ body.light .home-hero h1{color:#92671a}
 .home-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px}
 @media(max-width:500px){.home-cards{grid-template-columns:1fr}}
 .hc{background:var(--card);border:1px solid var(--b);border-radius:var(--r);padding:24px;cursor:pointer;transition:.2s;position:relative;overflow:hidden}
-.hc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--gold),var(--gd));border-radius:3px 0 0 3px}
+.hc::before,.tc::before,.trip-row::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
+.hc::before{background:linear-gradient(180deg,var(--gold),var(--gd))}
 .hc:hover{border-color:rgba(201,168,76,.3);transform:translateY(-2px)}
 .hc-icon{font-size:28px;margin-bottom:10px}
 .hc-t{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--tx);margin-bottom:4px}
@@ -86,26 +111,12 @@ body.light .home-hero h1{color:#92671a}
 .hstat-n{font-family:'Cormorant Garamond',serif;font-size:32px;color:var(--gl)}
 body.light .hstat-n{color:#92671a}
 .hstat-l{font-size:10px;color:var(--mu);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px}
-
-/* ── APP ── */
-nav{position:fixed;top:0;left:0;right:0;height:var(--nh);display:flex;align-items:center;justify-content:space-between;padding:0 32px;background:rgba(7,9,15,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--b);z-index:100;transition:background .3s}
-body.light nav{background:rgba(245,243,238,.93)}
-.tabs{display:flex;gap:4px;background:rgba(255,255,255,.04);border:1px solid var(--b);border-radius:30px;padding:4px}
-body.light .tabs{background:rgba(0,0,0,.05)}
-.tabs button{background:transparent;border:none;color:var(--mu);padding:7px 20px;border-radius:24px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;transition:.2s}
-.tabs button:hover{color:var(--tx)}
-.tabs button.active{background:var(--gold);color:#07090f}
-.dm-btn{width:34px;height:34px;background:rgba(255,255,255,.06);border:1px solid var(--b);border-radius:50%;cursor:pointer;color:var(--sf);font-size:16px;display:flex;align-items:center;justify-content:center;transition:.2s;flex-shrink:0}
-body.light .dm-btn{background:rgba(0,0,0,.05)}
-.dm-btn:hover{background:var(--gd);border-color:rgba(201,168,76,.4);color:var(--gl)}
+ 
+/* ── APP LAYOUT ── */
+#app-screen{display:none}
+#app-screen.on{display:block}
 .view{display:none;animation:up .35s ease}
 .view.on{display:block}
-@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-@keyframes shimmer{0%{left:-100%}100%{left:150%}}
-@keyframes cb-bounce{0%,100%{transform:scale(1)}35%{transform:scale(1.35)}65%{transform:scale(.88)}}
-@keyframes tc-shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px)}40%{transform:translateX(9px)}60%{transform:translateX(-5px)}80%{transform:translateX(4px)}}
-@keyframes li-out{to{transform:translateX(28px);opacity:0;max-height:0;padding:0;margin:0}}
-.wrap{max-width:700px;margin:0 auto;padding:calc(var(--nh) + 40px) 24px 80px}
 .ph{margin-bottom:36px}
 .ph h1{font-family:'Cormorant Garamond',serif;font-size:40px;font-weight:300;color:var(--gl);letter-spacing:1px;margin-bottom:6px}
 body.light .ph h1{color:#92671a}
@@ -114,6 +125,8 @@ body.light .ph h1{color:#92671a}
 .row{display:flex;gap:16px;margin-bottom:20px}
 .row .f{flex:1;margin:0}
 .f{margin-bottom:20px}
+ 
+/* ── FORM ELEMENTS ── */
 label{display:block;font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--mu);margin-bottom:7px}
 input[type=text],input[type=date]{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--b);border-radius:var(--rs);color:var(--tx);font-family:'DM Sans',sans-serif;font-size:15px;padding:12px 15px;outline:none;transition:.2s;appearance:none}
 body.light input[type=text],body.light input[type=date]{background:rgba(0,0,0,.04)}
@@ -121,28 +134,44 @@ input:hover{border-color:var(--bh)}
 input:focus{border-color:rgba(201,168,76,.5);background:rgba(201,168,76,.04)}
 input[type=date]::-webkit-calendar-picker-indicator{filter:invert(1) opacity(.4);cursor:pointer}
 body.light input[type=date]::-webkit-calendar-picker-indicator{filter:none;opacity:.5}
+ 
+/* ── SECTION LABEL ── */
 .sl{font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:12px;margin-bottom:12px}
 .sl::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(201,168,76,.3),transparent)}
+ 
+/* ── CHIPS ── */
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
 .chip{padding:8px 15px;background:rgba(255,255,255,.03);border:1px solid var(--b);border-radius:30px;cursor:pointer;font-size:13px;color:var(--sf);transition:.2s;user-select:none}
 body.light .chip{background:rgba(0,0,0,.04);color:#374151}
 .chip:hover{border-color:rgba(201,168,76,.4);color:var(--tx)}
 .chip.on{background:var(--gd);border-color:rgba(201,168,76,.6);color:var(--gl)}
 body.light .chip.on{color:#7a5c10}
+ 
+/* ── BUTTONS ── */
 .add-row{display:flex;gap:10px;margin-bottom:20px}
-.btn-sm{background:rgba(255,255,255,.06);border:1px solid var(--bh);border-radius:var(--rs);color:var(--tx);font-family:'DM Sans',sans-serif;font-size:13px;padding:0 18px;cursor:pointer;transition:.2s;white-space:nowrap}
-body.light .btn-sm{background:rgba(0,0,0,.06);border-color:rgba(0,0,0,.15)}
+.btn-sm,.btn-pdf{background:rgba(255,255,255,.05);border:1px solid var(--b);border-radius:var(--rs);color:var(--sf);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:.2s;white-space:nowrap}
+.btn-sm{padding:0 18px}
+.btn-pdf{padding:15px 20px;font-weight:500}
+body.light .btn-sm,body.light .btn-pdf{background:rgba(0,0,0,.05);border-color:rgba(0,0,0,.15);color:#374151}
 .btn-sm:hover,.btn-pdf:hover{background:var(--gd);border-color:rgba(201,168,76,.4);color:var(--gl)}
 body.light .btn-sm:hover,body.light .btn-pdf:hover{color:#7a5c10}
+.btn-row{display:flex;gap:10px}
+.btn-save{flex:1;padding:15px;background:linear-gradient(135deg,var(--gold),#a8772a);border:none;border-radius:var(--rs);color:#07090f;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:.2s}
+.btn-save:hover{opacity:.9}
+.btn-save:active{transform:scale(.99)}
+ 
+/* ── PROGRESS BAR ── */
 .prog-wrap{margin-bottom:20px}
 .prog-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .prog-label{font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--mu)}
 .prog-count{font-size:13px;color:var(--gold);font-weight:500}
 body.light .prog-count{color:#92671a}
-.prog-bar-bg{height:6px;background:rgba(255,255,255,.06);border-radius:10px;border:1px solid var(--b);position:relative;overflow:hidden}
+.prog-bar-bg{height:6px;background:rgba(255,255,255,.06);border-radius:10px;border:1px solid var(--b);overflow:hidden}
 body.light .prog-bar-bg{background:rgba(0,0,0,.08)}
 .prog-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gl));border-radius:10px;transition:width .5s cubic-bezier(.25,1,.5,1);position:relative;overflow:hidden}
 .prog-bar-fill::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);animation:shimmer 2s infinite ease-in-out}
+ 
+/* ── PACKING LIST ── */
 .list{background:rgba(0,0,0,.25);border:1px solid var(--b);border-radius:var(--rs);max-height:300px;overflow-y:auto;padding:4px 0;margin-bottom:20px}
 body.light .list{background:rgba(0,0,0,.03)}
 .list::-webkit-scrollbar{width:4px}
@@ -163,12 +192,8 @@ body.light .li input:checked+span{color:#9ca3af}
 .li:hover .li-remove{opacity:1}
 .li-remove:hover{background:rgba(239,68,68,.2)!important;border-color:rgba(239,68,68,.5)!important}
 .empty{padding:28px;text-align:center;color:var(--mu);font-size:13px}
-.btn-row{display:flex;gap:10px}
-.btn-save{flex:1;padding:15px;background:linear-gradient(135deg,var(--gold),#a8772a);border:none;border-radius:var(--rs);color:#07090f;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:.2s}
-.btn-save:hover{opacity:.9}
-.btn-save:active{transform:scale(.99)}
-.btn-pdf{padding:15px 20px;background:rgba(255,255,255,.05);border:1px solid var(--b);border-radius:var(--rs);color:var(--sf);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:.2s;white-space:nowrap}
-body.light .btn-pdf{background:rgba(0,0,0,.05);color:#374151}
+ 
+/* ── CALENDAR ── */
 .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
 .cal-m{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;color:var(--gl)}
 body.light .cal-m{color:#111827}
@@ -178,8 +203,10 @@ body.light .cal-btn{background:rgba(0,0,0,.05);color:#374151}
 .cal-btn:hover{background:var(--gd);border-color:rgba(201,168,76,.4);color:var(--gl)}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
 .dow{text-align:center;font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--mu);padding:7px 0}
-.day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:13px;color:var(--sf);background:rgba(255,255,255,.03);border:1px solid transparent}
+.day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:8px;font-size:13px;color:var(--sf);background:rgba(255,255,255,.03);border:1px solid transparent;position:relative;cursor:default;padding:2px;gap:2px}
 body.light .day{color:#4b5563;background:rgba(0,0,0,.02)}
+.day-num{font-size:13px;line-height:1}
+.day-label{font-size:8px;font-weight:500;letter-spacing:.3px;text-transform:uppercase;color:inherit;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90%;text-align:center;line-height:1.1}
 .day.other{color:rgba(255,255,255,.15)}
 body.light .day.other{color:rgba(0,0,0,.22)}
 .day.today{border-color:rgba(201,168,76,.4);color:var(--gl)}
@@ -187,11 +214,26 @@ body.light .day.today{color:#7a5c10}
 .day.ds{background:var(--ds);color:var(--dsc);font-weight:500}
 .day.de{background:var(--de);color:var(--dec);font-weight:500}
 .day.dm{background:var(--dm);color:var(--dmc)}
+.day.has-trip{cursor:pointer}
+.day.has-trip:hover{filter:brightness(1.15);transform:scale(1.06);z-index:2;transition:transform .15s,filter .15s}
 .leg{display:flex;gap:18px;justify-content:center;margin-top:16px;flex-wrap:wrap}
 .leg-i{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mu)}
 .dot{width:9px;height:9px;border-radius:50%}
+ 
+/* ── CAL TOOLTIP ── */
+.cal-tip{position:fixed;z-index:999;background:var(--card);border:1px solid rgba(201,168,76,.4);border-radius:10px;padding:12px 16px;min-width:200px;max-width:260px;pointer-events:none;opacity:0;transform:translateY(6px);transition:opacity .18s,transform .18s;box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.cal-tip.show{opacity:1;transform:translateY(0)}
+.cal-tip-name{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--gl);margin-bottom:4px}
+body.light .cal-tip-name{color:#92671a}
+.cal-tip-dates{font-size:11px;color:var(--mu);margin-bottom:6px}
+.cal-tip-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:3px 8px;border-radius:20px;font-weight:500}
+.cal-tip-badge.dep{background:var(--ds);color:var(--dsc)}
+.cal-tip-badge.mid{background:var(--dm);color:var(--dmc)}
+.cal-tip-badge.ret{background:var(--de);color:var(--dec)}
+ 
+/* ── TRIP CARDS ── */
 .tc{background:var(--card);border:1px solid var(--b);border-radius:var(--r);padding:20px 24px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;transition:border-color .2s,transform .2s,opacity .4s;position:relative;overflow:hidden}
-.tc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--gold),var(--gd));border-radius:3px 0 0 3px}
+.tc::before{background:linear-gradient(180deg,var(--gold),var(--gd))}
 .tc:hover{border-color:rgba(201,168,76,.25);transform:translateY(-1px)}
 .tc.shaking{animation:tc-shake .4s ease}
 .tc.gone{transform:translateX(60px)!important;opacity:0;pointer-events:none}
@@ -217,10 +259,37 @@ body.light .countdown{color:#92671a}
 body.light .countdown.active{color:#065f46}
 .countdown.past{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.2);color:#f87171}
 body.light .countdown.past{color:#991b1b}
+ 
+/* ── TRIP LIST (CALENDAR PAGE) ── */
+.trip-list-section{margin-top:24px}
+.trip-row{display:flex;align-items:center;gap:14px;padding:14px 18px;background:var(--card);border:1px solid var(--b);border-radius:var(--rs);margin-bottom:8px;cursor:pointer;transition:border-color .2s,transform .15s;position:relative;overflow:hidden}
+.trip-row.upcoming::before{background:linear-gradient(180deg,var(--dsc),transparent)}
+.trip-row.active::before{background:linear-gradient(180deg,#6ee7b7,transparent)}
+.trip-row.past::before{background:linear-gradient(180deg,#f87171,transparent)}
+.trip-row:hover{border-color:rgba(201,168,76,.3);transform:translateX(3px)}
+.trip-row-icon{font-size:20px;flex-shrink:0}
+.trip-row-info{flex:1;min-width:0}
+.trip-row-name{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trip-row-dates{font-size:11px;color:var(--mu);margin-top:2px}
+.trip-row-status{font-size:10px;padding:3px 9px;border-radius:20px;font-weight:500;flex-shrink:0}
+.trip-row-status.upcoming{background:var(--ds);color:var(--dsc)}
+.trip-row-status.active{background:rgba(16,185,129,.2);color:#6ee7b7}
+.trip-row-status.past{background:rgba(239,68,68,.1);color:#fca5a5}
+body.light .trip-row-status.active{color:#065f46}
+body.light .trip-row-status.past{color:#7f1d1d}
+ 
+/* ── TOAST ── */
 .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(16px);background:#161e2e;border:1px solid rgba(201,168,76,.4);border-radius:30px;padding:11px 22px;font-size:13px;color:var(--gl);opacity:0;pointer-events:none;transition:.3s;z-index:999;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-#app-screen{display:none}
-#app-screen.on{display:block}
+ 
+/* ── ANIMATIONS ── */
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes shimmer{0%{left:-100%}100%{left:150%}}
+@keyframes cb-bounce{0%,100%{transform:scale(1)}35%{transform:scale(1.35)}65%{transform:scale(.88)}}
+@keyframes tc-shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px)}40%{transform:translateX(9px)}60%{transform:translateX(-5px)}80%{transform:translateX(4px)}}
+@keyframes li-out{to{transform:translateX(28px);opacity:0;max-height:0;padding:0;margin:0}}
+ 
+/* ── RESPONSIVE ── */
 @media(max-width:580px){
   nav,.home-nav{padding:0 16px}
   .tabs button{padding:6px 10px;font-size:12px}
@@ -232,3 +301,132 @@ body.light .countdown.past{color:#991b1b}
   .home-nav-right{gap:6px}
   .user-name{display:none}
 }
+</style>
+</head>
+<body>
+
+<div id="app-screen" class="on">
+  <nav>
+    <div class="logo" onclick="window.location.href='home.html'" style="cursor:pointer">V<span>o</span>yager</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="tabs">
+        <button onclick="window.location.href='calendar.html'">Calendar</button>
+        <button onclick="window.location.href='plan.html'">Plan</button>
+        <button class="active" onclick="window.location.href='trips.html'">Trips</button>
+      </div>
+      <button class="dm-btn" onclick="toggleDark()" title="Toggle light/dark">🌙</button>
+    </div>
+  </nav>
+  <main>
+    <section id="v-trips" class="view on">
+      <div class="wrap">
+        <div class="ph"><h1>Your Journeys <span class="badge" id="tc-badge">0</span></h1><p>All your adventures in one place</p></div>
+        <div id="trips-out"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const pad=n=>String(n).padStart(2,'0');
+const fmt=s=>{if(!s)return'';const[y,m,d]=s.split('-');return`${+d} ${MONTHS[+m-1].slice(0,3)} ${y}`};
+
+// ── STORAGE ──
+const getUsers=()=>{try{return JSON.parse(localStorage.getItem('voy-users')||'{}')}catch{return{}}};
+const setUsers=u=>localStorage.setItem('voy-users',JSON.stringify(u));
+const getCurrentUser=()=>{try{return JSON.parse(localStorage.getItem('voy-session')||'null')}catch{return null}};
+const getTripKey=()=>`voy-trips-${getCurrentUser()?.email||''}`;
+const getTrips=()=>{try{return JSON.parse(localStorage.getItem(getTripKey())||'[]')}catch{return[]}};
+const setTrips=t=>localStorage.setItem(getTripKey(),JSON.stringify(t));
+
+function logout(){
+  localStorage.removeItem('voy-session');
+  window.location.href='index.html';
+}
+
+function requireAuth(){
+  const user=getCurrentUser();
+  if(!user){window.location.href='index.html';return null;}
+  return user;
+}
+
+// ── THEME ──
+function initTheme(){
+  const L=localStorage.getItem('voy-theme')==='light';
+  if(L)document.body.classList.add('light');
+  document.querySelectorAll('.dm-btn').forEach(b=>b.textContent=L?'🌙':'☀️');
+}
+function toggleDark(){
+  const L=document.body.classList.toggle('light');
+  document.querySelectorAll('.dm-btn').forEach(b=>b.textContent=L?'🌙':'☀️');
+  localStorage.setItem('voy-theme',L?'light':'dark');
+  if(typeof buildCal==='function'&&document.getElementById('v-cal')?.classList.contains('on'))buildCal();
+}
+
+// ── TOAST ──
+function toast(msg){
+  const e=document.getElementById('toast');if(!e)return;
+  e.textContent=msg;e.classList.add('show');
+  clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),2600);
+}
+
+</script>
+<script>
+const ACT=[
+  {k:'Beach',l:'Beach',i:'🏖'},{k:'Hiking',l:'Hiking',i:'⛰'},{k:'City',l:'City',i:'🏙'},
+  {k:'Camping',l:'Camping',i:'⛺'},{k:'Formal',l:'Formal',i:'👔'},{k:'Photo',l:'Photography',i:'📷'},
+  {k:'Winter',l:'Winter Sports',i:'❄'},{k:'Gym',l:'Fitness',i:'💪'},{k:'Work',l:'Work / Remote',i:'💼'},
+  {k:'Water',l:'Water Sports',i:'🚣'},{k:'Cycling',l:'Cycling',i:'🚲'},{k:'Tropical',l:'Tropical',i:'🌴'},
+];
+
+window.addEventListener('DOMContentLoaded',()=>{
+  initTheme();
+  requireAuth();
+  buildTrips();
+});
+
+function countdown(s,e){
+  const today=new Date();today.setHours(0,0,0,0);
+  const dep=new Date(s),ret=new Date(e);
+  const diff=ms=>Math.ceil(ms/86400000);
+  if(today<dep){const d=diff(dep-today);return`<div class="countdown">✈ ${d} day${d!==1?'s':''} to departure</div>`}
+  if(today<=ret){const d=diff(ret-today);return`<div class="countdown active">🌍 Trip in progress · ${d} day${d!==1?'s':''} left</div>`}
+  return'<div class="countdown past">✓ Completed</div>';
+}
+
+function buildTrips(){
+  const trips=getTrips();
+  document.getElementById('tc-badge').textContent=trips.length;
+  document.getElementById('trips-out').innerHTML=trips.length
+    ?trips.map(t=>`<div class="tc" id="tc-${t.id}"><div><div class="tn">${t.n}</div><div class="td">${fmt(t.s)} → ${fmt(t.e)}</div>${countdown(t.s,t.e)}<div class="tt">${(t.a||[]).map(k=>{const f=ACT.find(x=>x.k===k);return`<span class="ttag">${f?f.i+' '+f.l:k}</span>`}).join('')}</div></div><div class="acts"><button class="be" onclick="editTrip(${t.id})">Edit</button><button class="bd" onclick="delTrip(${t.id})">Delete</button></div></div>`).join('')
+    :'<div class="es"><p>No journeys yet</p><small>Plan your first adventure and it will appear here</small></div>';
+}
+
+function editTrip(id){
+  const t=getTrips().find(x=>x.id===id);if(!t)return;
+  // Pass trip data to plan page via localStorage
+  localStorage.setItem('voy-edit',JSON.stringify(t));
+  window.location.href='plan.html';
+}
+
+function delTrip(id){
+  const target=document.getElementById('tc-'+id);
+  if(!target){setTrips(getTrips().filter(t=>t.id!==id));buildTrips();return}
+  if(target._delPending)return;
+  target._delPending=true;
+  target.classList.add('shaking');
+  function onShakeEnd(){
+    target.removeEventListener('animationend',onShakeEnd);
+    target.classList.remove('shaking');
+    if(!confirm('Delete this trip?')){target._delPending=false;return}
+    target.classList.add('gone');
+    setTimeout(()=>{setTrips(getTrips().filter(t=>t.id!==id));buildTrips();toast('Trip removed')},420);
+  }
+  target.addEventListener('animationend',onShakeEnd);
+}
+</script>
+</body>
+</html>
